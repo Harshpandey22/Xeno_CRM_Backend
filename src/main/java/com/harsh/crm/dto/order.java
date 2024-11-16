@@ -1,15 +1,29 @@
-package com.harsh.crm.entity;
+package com.harsh.crm.dto;
 
 import jakarta.persistence.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 @Document(collection = "Orders")
-public class order{
+public class order {
+
     @Id
+    @Field("orderId")
     private String orderId;
     private String orderDate;
     private String orderPrice;
+    private String productName;
+
+    @Field("custId")
     private int custId;
+
+    public String getProductName() {
+        return productName;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
+    }
 
     public String getOrderId() {
         return orderId;

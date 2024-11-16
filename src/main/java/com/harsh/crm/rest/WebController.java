@@ -1,16 +1,325 @@
+//package com.harsh.crm.rest;
+//
+//import com.harsh.crm.dto.Customer;
+//import com.harsh.crm.dto.CustomerSegments;
+//import com.harsh.crm.dto.order;
+//import com.harsh.crm.repository.jpa.Customer_Segments_Repo;
+//import com.harsh.crm.repository.mongo.Order_Details_Repo;
+//import com.harsh.crm.repository.jpa.User_Details_Repo;
+//import org.springframework.beans.factory.annotation.Autowired;
+//import org.springframework.http.HttpStatus;
+//import org.springframework.http.ResponseEntity;
+//import org.springframework.web.bind.annotation.*;
+//
+//import java.time.LocalDateTime;
+//import java.time.temporal.ChronoUnit;
+//import java.util.List;
+//import java.util.Optional;
+//import java.util.*;
+//import java.time.LocalDate;
+//import java.time.format.DateTimeFormatter;
+//import java.util.stream.Collectors;
+//
+//
+//@RestController
+//@CrossOrigin("*")
+//public class WebController {
+//
+//    private final User_Details_Repo userDetailsRepo;
+//    private final Order_Details_Repo orderDetailsRepo;
+//    private final Customer_Segments_Repo customerSegmentsRepo;
+//
+//    @Autowired
+//    public WebController(User_Details_Repo userDetailsRepo, Order_Details_Repo orderDetailsRepo, Customer_Segments_Repo customerSegmentsRepo) {
+//        this.userDetailsRepo = userDetailsRepo;
+//        this.orderDetailsRepo = orderDetailsRepo;
+//        this.customerSegmentsRepo = customerSegmentsRepo;
+//    }
+//
+//    @PostMapping("/store_customer")
+//    public ResponseEntity<String> storeData(@RequestBody Customer data) {
+//        if (data == null) {
+//            return new ResponseEntity<>("Invalid customer data", HttpStatus.BAD_REQUEST);
+//        }
+//        userDetailsRepo.save(data);
+//        return new ResponseEntity<>("Customer Data stored", HttpStatus.CREATED);
+//    }
+//
+//    @GetMapping("/get_customer")
+//    public ResponseEntity<List<Customer>> getData() {
+//        List<Customer> Customers = userDetailsRepo.findAll();
+//        if (Customers.isEmpty()) {
+//            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+//        }
+//        return new ResponseEntity<>(Customers, HttpStatus.OK);
+//    }
+//
+//    @DeleteMapping("/delete_single_customer/{id}")
+//    public ResponseEntity<String> deleteData(@PathVariable int id) {
+//        Optional<Customer> existingCustomer = userDetailsRepo.findById(id);
+//        if (existingCustomer.isEmpty()) {
+//            return new ResponseEntity<>("Customer not found", HttpStatus.NOT_FOUND);
+//        }
+//        userDetailsRepo.deleteById(id);
+//        return new ResponseEntity<>("User Deleted", HttpStatus.OK);
+//    }
+//
+//    @DeleteMapping("/delete_all_customer")
+//    public ResponseEntity<String> deleteAllCustomer() {
+//        userDetailsRepo.deleteAll();
+//        userDetailsRepo.resetAutoIncrement();
+//        return ResponseEntity.ok("All users deleted");
+//    }
+//
+//
+//    @PutMapping("/put_customer_data/{id}")
+//    public ResponseEntity<String> putData(@RequestBody Customer data, @PathVariable int id) {
+//        Optional<Customer> existingCustomer = userDetailsRepo.findById(id);
+//        if (existingCustomer.isEmpty()) {
+//            return new ResponseEntity<>("Customer not found", HttpStatus.NOT_FOUND);
+//        }
+//
+//        Customer cust = existingCustomer.get();
+//
+//        cust.setPhoneNumber(data.getPhoneNumber());
+//        cust.setEmailId(data.getEmailId());
+//        cust.setFirstName(data.getFirstName());
+//        cust.setLastName(data.getLastName());
+//        cust.setCustomerVisits(data.getCustomerVisits());
+//        userDetailsRepo.save(cust);
+//        return new ResponseEntity<>("Details Successfully Updated", HttpStatus.OK);
+//    }
+//
+//    @PostMapping("/store_order")
+//    public ResponseEntity<String> storeOrder(@RequestBody order data) {
+//        if (data == null) {
+//            return new ResponseEntity<>("Invalid order data", HttpStatus.BAD_REQUEST);
+//        }
+//        orderDetailsRepo.save(data);
+//        return new ResponseEntity<>("Order Data stored", HttpStatus.CREATED);
+//    }
+//
+//    @GetMapping("/get_orders")
+//    public ResponseEntity<List<order>> getOrders() {
+//        List<order> orders = orderDetailsRepo.findAll();
+//        if (orders.isEmpty()) {
+//            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+//        }
+//        return new ResponseEntity<>(orders, HttpStatus.OK);
+//    }
+//
+//
+//    @GetMapping("/get_single_order/{orderId}")
+//    public ResponseEntity<order> getSingleOrder(@PathVariable String orderId) {
+//        Optional<order> orders = orderDetailsRepo.findByOrderId(orderId);
+//        if (orders.isPresent()) {
+//            return new ResponseEntity<>(orders.get(), HttpStatus.OK);
+//        }
+//        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+//
+//    }
+//    @GetMapping("/get_order_cust")
+//    public ResponseEntity<List<order>> getOrdersCustId(@RequestParam int custId) {
+//        Optional<List<order>> orders = orderDetailsRepo.findByCustId(custId);
+//        if (orders.isPresent()) {
+//            System.out.println(orders.get());
+//            return new ResponseEntity<>(orders.get(), HttpStatus.OK);
+//        }
+//        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+//
+//    }
+//
+//    @DeleteMapping("/delete_order_data/{id}")
+//    public ResponseEntity<String> deleteOrderData(@PathVariable String id) {
+//        orderDetailsRepo.deleteByOrderId(id);  // Make sure you're deleting from the right repo
+//        return new ResponseEntity<>("Order Deleted", HttpStatus.OK);
+//    }
+//
+//    @DeleteMapping("/delete_all_orders")
+//    public ResponseEntity<String> deleteAllData() {
+//        orderDetailsRepo.deleteAll();  // Make sure you're deleting from the right repo
+//        return new ResponseEntity<>("All Orders Deleted", HttpStatus.OK);
+//    }
+//
+//
+//    @PutMapping("/put_order_data/{id}")
+//    public ResponseEntity<String> putOrderData(@RequestBody order data, @PathVariable String id) {  // Change to String if your id is String
+//        Optional<order> existingOrder = orderDetailsRepo.findByOrderId(id);
+//        if (existingOrder.isEmpty()) {
+//            return new ResponseEntity<>("Order not found", HttpStatus.NOT_FOUND);
+//        }
+//
+//        order or = existingOrder.get();
+//        or.setOrderDate(data.getOrderDate());
+//        or.setOrderPrice(data.getOrderPrice());
+//        or.setCustId(data.getCustId());
+//        or.setProductName(data.getProductName());
+//
+//        orderDetailsRepo.save(or);  // Save the updated order back to the repository
+//        return new ResponseEntity<>("Details Successfully Updated", HttpStatus.OK);
+//    }
+//
+//
+//    @GetMapping("/customer_segment")
+//    public ResponseEntity<List<Customer>> customerSegment(
+//            @RequestParam(required = false) Integer totalSpent,
+//            @RequestParam(required = false) Integer numVisits,
+//            @RequestParam(required = false) Integer lastVisited,
+//            @RequestParam(required = false) String productName,
+//            @RequestParam(defaultValue = "AND") String totalSpentLogic,
+//            @RequestParam(defaultValue = "AND") String numVisitsLogic,
+//            @RequestParam(defaultValue = "AND") String lastVisitedLogic,
+//            @RequestParam(defaultValue = "AND") String productNameLogic,
+//            @RequestParam(defaultValue = "Segment1") String segmentName
+//    ) {
+//        Set<Integer> custIds = customerSegmentIds(totalSpent, numVisits, lastVisited, productName,
+//                totalSpentLogic, numVisitsLogic, lastVisitedLogic, productNameLogic);
+//
+//        List<Customer> customersGive = new ArrayList<>();
+//        List<Customer> Customers = getData().getBody();
+//
+//        for (Customer temp : Customers) {
+//            if (custIds.contains(temp.getCustomerId())) {
+//                customersGive.add(temp);
+//            }
+//        }
+//        CustomerSegments segment = new CustomerSegments();
+//        segment.setSegmentName(segmentName);
+//        segment.setTotalSpent(totalSpent);
+//        segment.setNumVisits(numVisits);
+//        segment.setLastVisited(lastVisited);
+//        segment.setProductName(productName);
+//        segment.setTotalSpentLogic(totalSpentLogic);
+//        segment.setNumVisitsLogic(numVisitsLogic);
+//        segment.setLastVisitedLogic(lastVisitedLogic);
+//        segment.setProductNameLogic(productNameLogic);
+//        segment.setCustomerIds(custIds);
+//        segment.setCreatedAt(LocalDateTime.now());
+//        customerSegmentsRepo.save(segment);
+//        return new ResponseEntity<>(customersGive, HttpStatus.OK);
+//    }
+//
+//    public Set<Integer> customerSegmentIds(Integer totalSpent, Integer numVisits, Integer lastVisited, String productName,
+//                                           String totalSpentLogic, String numVisitsLogic, String lastVisitedLogic, String productNameLogic) {
+//
+//        Set<Integer> totalSpentCustomers = new HashSet<>();
+//        Set<Integer> numVisitsCustomers = new HashSet<>();
+//        Set<Integer> lastVisitedCustomers = new HashSet<>();
+//        Set<Integer> productNameCustomers = new HashSet<>();
+//
+//        List<Customer> Customers = getData().getBody();
+//
+//        // Total Spent Criterion
+//        if (totalSpent != null) {
+//            for (Customer temp : Customers) {
+//                int custId = temp.getCustomerId();
+//                int totalSpentAmount = getOrdersCustId(custId).getBody().stream()
+//                        .mapToInt(order -> Integer.parseInt(order.getOrderPrice()))
+//                        .sum();
+//                if (totalSpentAmount >= totalSpent) {
+//                    totalSpentCustomers.add(custId);
+//                }
+//            }
+//        }
+//
+//        // Number of Visits Criterion
+//        if (numVisits != null) {
+//            for (Customer temp : Customers) {
+//                if (temp.getCustomerVisits() >= numVisits) {
+//                    numVisitsCustomers.add(temp.getCustomerId());
+//                }
+//            }
+//        }
+//
+//        // Last Visited Criterion
+//        if (lastVisited != null) {
+//            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+//            LocalDate currentDate = LocalDate.now();
+//            for (Customer temp : Customers) {
+//                int custId = temp.getCustomerId();
+//                boolean meetsLastVisited = getOrdersCustId(custId).getBody().stream()
+//                        .anyMatch(order -> ChronoUnit.MONTHS.between(
+//                                LocalDate.parse(order.getOrderDate(), formatter), currentDate) > lastVisited);
+//                if (meetsLastVisited) {
+//                    lastVisitedCustomers.add(custId);
+//                }
+//            }
+//        }
+//
+//        // Product Name Criterion
+//        if (productName != null) {
+//            for (Customer temp : Customers) {
+//                int custId = temp.getCustomerId();
+//                boolean hasProduct = getOrdersCustId(custId).getBody().stream()
+//                        .anyMatch(order -> Objects.equals(order.getProductName(), productName));
+//                if (hasProduct) {
+//                    productNameCustomers.add(custId);
+//                }
+//            }
+//        }
+//
+//        // Combine results with AND/OR logic based on each criterion's logic parameter
+//        Set<Integer> combinedResult = new HashSet<>(Customers.stream().map(Customer::getCustomerId).collect(Collectors.toSet()));
+//
+//        if (!totalSpentCustomers.isEmpty()) {
+//            if ("AND".equalsIgnoreCase(totalSpentLogic)) {
+//                combinedResult.retainAll(totalSpentCustomers);
+//            } else if ("OR".equalsIgnoreCase(totalSpentLogic)) {
+//                combinedResult.addAll(totalSpentCustomers);
+//            }
+//        }
+//
+//        if (!numVisitsCustomers.isEmpty()) {
+//            if ("AND".equalsIgnoreCase(numVisitsLogic)) {
+//                combinedResult.retainAll(numVisitsCustomers);
+//            } else if ("OR".equalsIgnoreCase(numVisitsLogic)) {
+//                combinedResult.addAll(numVisitsCustomers);
+//            }
+//        }
+//
+//        if (!lastVisitedCustomers.isEmpty()) {
+//            if ("AND".equalsIgnoreCase(lastVisitedLogic)) {
+//                combinedResult.retainAll(lastVisitedCustomers);
+//            } else if ("OR".equalsIgnoreCase(lastVisitedLogic)) {
+//                combinedResult.addAll(lastVisitedCustomers);
+//            }
+//        }
+//
+//        if (!productNameCustomers.isEmpty()) {
+//            if ("AND".equalsIgnoreCase(productNameLogic)) {
+//                combinedResult.retainAll(productNameCustomers);
+//            } else if ("OR".equalsIgnoreCase(productNameLogic)) {
+//                combinedResult.addAll(productNameCustomers);
+//            }
+//        }
+//
+//        return combinedResult;
+//    }
+
+
+
+
 package com.harsh.crm.rest;
 
-import com.harsh.crm.entity.customer;
+import com.harsh.crm.dto.Customer;
+import com.harsh.crm.dto.CustomerSegments;
+import com.harsh.crm.dto.order;
+import com.harsh.crm.repository.jpa.Customer_Segments_Repo;
 import com.harsh.crm.repository.mongo.Order_Details_Repo;
 import com.harsh.crm.repository.jpa.User_Details_Repo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
-import com.harsh.crm.entity.order;
-
+import java.util.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin("*")
@@ -18,15 +327,17 @@ public class WebController {
 
     private final User_Details_Repo userDetailsRepo;
     private final Order_Details_Repo orderDetailsRepo;
+    private final Customer_Segments_Repo customerSegmentsRepo;
 
     @Autowired
-    public WebController(User_Details_Repo userDetailsRepo, Order_Details_Repo orderDetailsRepo) {
+    public WebController(User_Details_Repo userDetailsRepo, Order_Details_Repo orderDetailsRepo, Customer_Segments_Repo customerSegmentsRepo) {
         this.userDetailsRepo = userDetailsRepo;
         this.orderDetailsRepo = orderDetailsRepo;
+        this.customerSegmentsRepo = customerSegmentsRepo;
     }
 
-    @PostMapping("/store_data")
-    public ResponseEntity<String> storeData(@RequestBody customer data){
+    @PostMapping("/store_customer")
+    public ResponseEntity<String> storeData(@RequestBody Customer data) {
         if (data == null) {
             return new ResponseEntity<>("Invalid customer data", HttpStatus.BAD_REQUEST);
         }
@@ -34,18 +345,18 @@ public class WebController {
         return new ResponseEntity<>("Customer Data stored", HttpStatus.CREATED);
     }
 
-    @GetMapping("/get_data")
-    public ResponseEntity<List<customer>> getData(){
-        List<customer> customers = userDetailsRepo.findAll();
-        if (customers.isEmpty()) {
+    @GetMapping("/get_customer")
+    public ResponseEntity<List<Customer>> getData() {
+        List<Customer> Customers = userDetailsRepo.findAll();
+        if (Customers.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
-        return new ResponseEntity<>(customers, HttpStatus.OK);
+        return new ResponseEntity<>(Customers, HttpStatus.OK);
     }
 
-    @DeleteMapping("/delete_data/{id}")
-    public ResponseEntity<String> deleteData(@PathVariable int id){
-        Optional<customer> existingCustomer = userDetailsRepo.findById(id);
+    @DeleteMapping("/delete_single_customer/{id}")
+    public ResponseEntity<String> deleteData(@PathVariable int id) {
+        Optional<Customer> existingCustomer = userDetailsRepo.findById(id);
         if (existingCustomer.isEmpty()) {
             return new ResponseEntity<>("Customer not found", HttpStatus.NOT_FOUND);
         }
@@ -53,35 +364,41 @@ public class WebController {
         return new ResponseEntity<>("User Deleted", HttpStatus.OK);
     }
 
-    @PutMapping("/put_data/{id}")
-    public ResponseEntity<String> putData(@RequestBody customer data, @PathVariable int id){
-        Optional<customer> existingCustomer = userDetailsRepo.findById(id);
+    @DeleteMapping("/delete_all_customer")
+    public ResponseEntity<String> deleteAllCustomer() {
+        userDetailsRepo.deleteAll();
+        userDetailsRepo.resetAutoIncrement();
+        return ResponseEntity.ok("All users deleted");
+    }
+
+    @PutMapping("/put_customer_data/{id}")
+    public ResponseEntity<String> putData(@RequestBody Customer data, @PathVariable int id) {
+        Optional<Customer> existingCustomer = userDetailsRepo.findById(id);
         if (existingCustomer.isEmpty()) {
             return new ResponseEntity<>("Customer not found", HttpStatus.NOT_FOUND);
         }
 
-        customer cust = existingCustomer.get();
-
+        Customer cust = existingCustomer.get();
         cust.setPhoneNumber(data.getPhoneNumber());
         cust.setEmailId(data.getEmailId());
         cust.setFirstName(data.getFirstName());
         cust.setLastName(data.getLastName());
-
+        cust.setCustomerVisits(data.getCustomerVisits());
         userDetailsRepo.save(cust);
         return new ResponseEntity<>("Details Successfully Updated", HttpStatus.OK);
     }
 
     @PostMapping("/store_order")
-    public ResponseEntity<String> storeOrder(@RequestBody order data){
+    public ResponseEntity<String> storeOrder(@RequestBody order data) {
         if (data == null) {
-            return new ResponseEntity<>("Invalid customer data", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Invalid order data", HttpStatus.BAD_REQUEST);
         }
         orderDetailsRepo.save(data);
-        return new ResponseEntity<>("Customer Data stored", HttpStatus.CREATED);
+        return new ResponseEntity<>("Order Data stored", HttpStatus.CREATED);
     }
 
     @GetMapping("/get_orders")
-    public ResponseEntity<List<order>> getOrders(){
+    public ResponseEntity<List<order>> getOrders() {
         List<order> orders = orderDetailsRepo.findAll();
         if (orders.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -89,55 +406,193 @@ public class WebController {
         return new ResponseEntity<>(orders, HttpStatus.OK);
     }
 
-//    @GetMapping("/get_single_order/{id}")
-//    public ResponseEntity <order> getSingleOrder(@PathVariable int id){
-//        List<order> orders = orderDetailsRepo.findAll();
-//        for(order temp:orders){
-//            if(temp.getOrderId().equals(Integer.toString(id))){
-//                return new ResponseEntity<>(temp,HttpStatus.OK);
-//            }
-//        }
-//
-//        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-//    }
     @GetMapping("/get_single_order/{orderId}")
-    public ResponseEntity<order> getSingleOrder(@PathVariable String orderId){
-        Optional<order> orderOptional = orderDetailsRepo.findById(orderId);
-        if (orderOptional.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    public ResponseEntity<order> getSingleOrder(@PathVariable String orderId) {
+        Optional<order> orders = orderDetailsRepo.findByOrderId(orderId);
+        if (orders.isPresent()) {
+            return new ResponseEntity<>(orders.get(), HttpStatus.OK);
         }
-        return new ResponseEntity<>(orderOptional.get(), HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-
+    @GetMapping("/get_order_cust")
+    public ResponseEntity<List<order>> getOrdersCustId(@RequestParam int custId) {
+        Optional<List<order>> orders = orderDetailsRepo.findByCustId(custId);
+        if (orders.isPresent()) {
+            return new ResponseEntity<>(orders.get(), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 
     @DeleteMapping("/delete_order_data/{id}")
-    public ResponseEntity<String> deleteOrderData(@PathVariable String id){
-        Optional<order> existingorder = orderDetailsRepo.findById(id);
-        if (existingorder.isEmpty()) {
-            return new ResponseEntity<>("Order not found", HttpStatus.NOT_FOUND);
-        }
-        userDetailsRepo.deleteById(Integer.valueOf(id));
+    public ResponseEntity<String> deleteOrderData(@PathVariable String id) {
+        orderDetailsRepo.deleteByOrderId(id);
         return new ResponseEntity<>("Order Deleted", HttpStatus.OK);
     }
 
+    @DeleteMapping("/delete_all_orders")
+    public ResponseEntity<String> deleteAllData() {
+        orderDetailsRepo.deleteAll();
+        return new ResponseEntity<>("All Orders Deleted", HttpStatus.OK);
+    }
 
     @PutMapping("/put_order_data/{id}")
-    public ResponseEntity<String> putOrderData(@RequestBody order data, @PathVariable int id){
-        Optional<order> existingorder  = orderDetailsRepo.findById(Integer.toString(id));
-        if (existingorder.isEmpty()) {
+    public ResponseEntity<String> putOrderData(@RequestBody order data, @PathVariable String id) {
+        Optional<order> existingOrder = orderDetailsRepo.findByOrderId(id);
+        if (existingOrder.isEmpty()) {
             return new ResponseEntity<>("Order not found", HttpStatus.NOT_FOUND);
         }
 
-        order or = existingorder.get();
-        // Ensure orderId is not overwritten
+        order or = existingOrder.get();
         or.setOrderDate(data.getOrderDate());
         or.setOrderPrice(data.getOrderPrice());
-
+        or.setCustId(data.getCustId());
+        or.setProductName(data.getProductName());
         orderDetailsRepo.save(or);
         return new ResponseEntity<>("Details Successfully Updated", HttpStatus.OK);
+    }
+
+    @GetMapping("/customer_segment")
+    public ResponseEntity<List<Customer>> customerSegment(
+            @RequestParam(required = false) Integer totalSpent,
+            @RequestParam(required = false) Integer numVisits,
+            @RequestParam(required = false) Integer lastVisited,
+            @RequestParam(required = false) String productName,
+            @RequestParam(defaultValue = "AND") String totalSpentLogic,
+            @RequestParam(defaultValue = "AND") String numVisitsLogic,
+            @RequestParam(defaultValue = "AND") String lastVisitedLogic,
+            @RequestParam(defaultValue = "AND") String productNameLogic,
+            @RequestParam(defaultValue = "Segment1") String segmentName
+    ) {
+        Set<Integer> custIds = customerSegmentIds(totalSpent, numVisits, lastVisited, productName,
+                totalSpentLogic, numVisitsLogic, lastVisitedLogic, productNameLogic);
+
+        List<Customer> customersGive = new ArrayList<>();
+        List<Customer> Customers = getData().getBody();
+
+        for (Customer temp : Customers) {
+            if (custIds.contains(temp.getCustomerId())) {
+                customersGive.add(temp);
+            }
+        }
+
+        CustomerSegments segment = new CustomerSegments();
+        segment.setSegmentName(segmentName);
+        segment.setTotalSpent(totalSpent);
+        segment.setNumVisits(numVisits);
+        segment.setLastVisited(lastVisited);
+        segment.setProductName(productName);
+        segment.setTotalSpentLogic(totalSpentLogic);
+        segment.setNumVisitsLogic(numVisitsLogic);
+        segment.setLastVisitedLogic(lastVisitedLogic);
+        segment.setProductNameLogic(productNameLogic);
+        segment.setCustomerIds(custIds.toString());
+        segment.setCreatedAt(LocalDateTime.now());
+        customerSegmentsRepo.save(segment);
+
+        return new ResponseEntity<>(customersGive, HttpStatus.OK);
+    }
+
+    public Set<Integer> customerSegmentIds(Integer totalSpent, Integer numVisits, Integer lastVisited, String productName,
+                                           String totalSpentLogic, String numVisitsLogic, String lastVisitedLogic, String productNameLogic) {
+
+        Set<Integer> totalSpentCustomers = new HashSet<>();
+        Set<Integer> numVisitsCustomers = new HashSet<>();
+        Set<Integer> lastVisitedCustomers = new HashSet<>();
+        Set<Integer> productNameCustomers = new HashSet<>();
+
+        List<Customer> Customers = getData().getBody();
+
+        // Total Spent Criterion
+        if (totalSpent != null) {
+            for (Customer temp : Customers) {
+                int custId = temp.getCustomerId();
+                int totalSpentAmount = getOrdersCustId(custId).getBody().stream()
+                        .mapToInt(order -> Integer.parseInt(order.getOrderPrice()))
+                        .sum();
+                if (totalSpentAmount >= totalSpent) {
+                    totalSpentCustomers.add(custId);
+                }
+            }
+        }
+
+        // Number of Visits Criterion
+        if (numVisits != null) {
+            for (Customer temp : Customers) {
+                if (temp.getCustomerVisits() >= numVisits) {
+                    numVisitsCustomers.add(temp.getCustomerId());
+                }
+            }
+        }
+
+        // Last Visited Criterion
+        if (lastVisited != null) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            LocalDate currentDate = LocalDate.now();
+            for (Customer temp : Customers) {
+                int custId = temp.getCustomerId();
+                boolean meetsLastVisited = getOrdersCustId(custId).getBody().stream()
+                        .anyMatch(order -> ChronoUnit.MONTHS.between(
+                                LocalDate.parse(order.getOrderDate(), formatter), currentDate) > lastVisited);
+                if (meetsLastVisited) {
+                    lastVisitedCustomers.add(custId);
+                }
+            }
+        }
+
+        // Product Name Criterion
+        if (productName != null) {
+            for (Customer temp : Customers) {
+                int custId = temp.getCustomerId();
+                boolean hasProduct = getOrdersCustId(custId).getBody().stream()
+                        .anyMatch(order -> Objects.equals(order.getProductName(), productName));
+                if (hasProduct) {
+                    productNameCustomers.add(custId);
+                }
+            }
+        }
+
+        // Combine results with AND/OR logic based on each criterion's logic parameter
+        Set<Integer> combinedResult = new HashSet<>(Customers.stream().map(Customer::getCustomerId).collect(Collectors.toSet()));
+
+        if (!totalSpentCustomers.isEmpty()) {
+            if ("AND".equalsIgnoreCase(totalSpentLogic)) {
+                combinedResult.retainAll(totalSpentCustomers);
+            } else if ("OR".equalsIgnoreCase(totalSpentLogic)) {
+                combinedResult.addAll(totalSpentCustomers);
+            }
+        }
+
+        if (!numVisitsCustomers.isEmpty()) {
+            if ("AND".equalsIgnoreCase(numVisitsLogic)) {
+                combinedResult.retainAll(numVisitsCustomers);
+            } else if ("OR".equalsIgnoreCase(numVisitsLogic)) {
+                combinedResult.addAll(numVisitsCustomers);
+            }
+        }
+
+        if (!lastVisitedCustomers.isEmpty()) {
+            if ("AND".equalsIgnoreCase(lastVisitedLogic)) {
+                combinedResult.retainAll(lastVisitedCustomers);
+            } else if ("OR".equalsIgnoreCase(lastVisitedLogic)) {
+                combinedResult.addAll(lastVisitedCustomers);
+            }
+        }
+
+        if (!productNameCustomers.isEmpty()) {
+            if ("AND".equalsIgnoreCase(productNameLogic)) {
+                combinedResult.retainAll(productNameCustomers);
+            } else if ("OR".equalsIgnoreCase(productNameLogic)) {
+                combinedResult.addAll(productNameCustomers);
+            }
+        }
+
+        return combinedResult;
     }
 
 
 
 }
+
+
+

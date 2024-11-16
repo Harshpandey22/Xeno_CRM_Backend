@@ -1,10 +1,10 @@
-package com.harsh.crm.entity;
+package com.harsh.crm.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
 @Entity
 @Table(name="customer_data")
-public class customer {
+public class Customer {
     @Id
     @Column(name="customer_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,7 +24,20 @@ public class customer {
 
     @Column(name="phone_number")
     @JsonProperty("phone_number") // This will map the JSON field 'phone_number' to 'phoneNumber' in Java
-    private Integer phoneNumber;
+    private String phoneNumber;
+
+
+    @Column(name="customer_visits")
+    @JsonProperty("customer_visits")
+    private Integer customerVisits;
+
+    public Integer getCustomerVisits() {
+        return customerVisits;
+    }
+
+    public void setCustomerVisits(Integer customerVisits) {
+        this.customerVisits = customerVisits;
+    }
 
     public int getCustomerId() {
         return customerId;
@@ -58,14 +71,14 @@ public class customer {
         this.emailId = emailId;
     }
 
-    public int getPhoneNumber() {
+    public String getPhoneNumber() {
         return phoneNumber;
     }
 
-    public void setPhoneNumber(int phoneNumber) {
+    public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
 
-    public customer() {
+    public Customer() {
     }
 }
