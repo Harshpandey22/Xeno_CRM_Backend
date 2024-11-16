@@ -31,6 +31,18 @@ public class Customer {
     @JsonProperty("customer_visits")
     private Integer customerVisits;
 
+    @Column(name="delivery_receipt")
+    @JsonProperty("delivery_receipt")
+    private String deliveryReceipt;
+
+    public String getDeliveryReceipt() {
+        return deliveryReceipt;
+    }
+
+    public void setDeliveryReceipt(String deliveryReceipt) {
+        this.deliveryReceipt = deliveryReceipt;
+    }
+
     public Integer getCustomerVisits() {
         return customerVisits;
     }

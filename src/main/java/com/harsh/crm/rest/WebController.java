@@ -322,13 +322,18 @@ public class WebController {
         }
     }
 
+    @GetMapping("get_segments")
+    public List<CustomerSegments> getSegments(){
+        List<CustomerSegments> customerSegments = customerSegmentsRepo.findAll();
+        return customerSegments;
+    }
+
     @PostMapping("/send_personalized_message")
     public List<String> sendMessage(@RequestBody CommunicationLogs data){
         communicationsLogRepo.save(data);
         List<String> result = sendPersonalMessage(data.getMessage(),data.getSegmentName());
         return result;
     }
-
 
     public List<String> sendPersonalMessage(String message, String segmentName) {
         List<Customer> customers = getCustomerIdsBySegment(segmentName).getBody();
@@ -343,14 +348,19 @@ public class WebController {
             if (isSuccess) {
                 System.out.println(String.format(temp, cust.getFirstName() + " " + cust.getLastName()));
                 messageSent.add(String.format(temp, cust.getFirstName() + " " + cust.getLastName()));
+                cust.setDeliveryReceipt("Success");
                 successCount++;
             } else {
                 System.out.println("Message failed to send to " + cust.getFirstName() + " " + cust.getLastName());
                 messageSent.add("Message failed to send to " + cust.getFirstName() + " " + cust.getLastName());
+                cust.setDeliveryReceipt("Failed");
                 failureCount++;
             }
+
+            putData(cust,cust.getCustomerId());
         }
-        String.format("Messages sent to %s: %d successful, %d failed", segmentName, successCount, failureCount);
+
+        messageSent.add(String.format("Messages sent to %s: %d successful, %d failed", segmentName, successCount, failureCount));
         return messageSent;
     }
 }
