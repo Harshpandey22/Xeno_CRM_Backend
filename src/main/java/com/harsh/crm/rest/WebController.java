@@ -322,33 +322,36 @@ public class WebController {
         }
     }
 
-    @PostMapping("/store_personalized_message")
-    public String sendMessage(@RequestBody CommunicationLogs data){
+    @PostMapping("/send_personalized_message")
+    public List<String> sendMessage(@RequestBody CommunicationLogs data){
         communicationsLogRepo.save(data);
-        String result = sendPersonalMessage(data.getMessage(),data.getSegmentName());
+        List<String> result = sendPersonalMessage(data.getMessage(),data.getSegmentName());
         return result;
     }
 
 
-    public String sendPersonalMessage(String message, String segmentName) {
+    public List<String> sendPersonalMessage(String message, String segmentName) {
         List<Customer> customers = getCustomerIdsBySegment(segmentName).getBody();
-        String temp = "Hi %s, here’s 10 percent off on your next order!";
+        String temp = "Hi %s," + message;
         Random random = new Random();
         int successCount = 0;
         int failureCount = 0;
-
+        List<String> messageSent = new ArrayList<>();
         for (Customer cust : customers) {
-            boolean isSuccess = random.nextInt(10) < 9; // 0-8 means success, 9 means failure
+            boolean isSuccess = random.nextInt(10) < 9;
 
             if (isSuccess) {
                 System.out.println(String.format(temp, cust.getFirstName() + " " + cust.getLastName()));
+                messageSent.add(String.format(temp, cust.getFirstName() + " " + cust.getLastName()));
                 successCount++;
             } else {
                 System.out.println("Message failed to send to " + cust.getFirstName() + " " + cust.getLastName());
+                messageSent.add("Message failed to send to " + cust.getFirstName() + " " + cust.getLastName());
                 failureCount++;
             }
         }
-        return String.format("Messages sent to %s: %d successful, %d failed", segmentName, successCount, failureCount);
+        String.format("Messages sent to %s: %d successful, %d failed", segmentName, successCount, failureCount);
+        return messageSent;
     }
 }
 
