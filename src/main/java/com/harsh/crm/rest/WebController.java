@@ -64,6 +64,7 @@ public class WebController {
         if (existingCustomer.isEmpty()) {
             return new ResponseEntity<>("Customer not found", HttpStatus.NOT_FOUND);
         }
+
         userDetailsRepo.deleteById(id);
         return new ResponseEntity<>("User Deleted", HttpStatus.OK);
     }
@@ -144,6 +145,17 @@ public class WebController {
     public ResponseEntity<String> deleteAllData() {
         orderDetailsRepo.deleteAll();
         return new ResponseEntity<>("All Orders Deleted", HttpStatus.OK);
+    }
+
+    @DeleteMapping("/delete_order_custId")
+    public ResponseEntity<String> deleteOrderCustId(@RequestParam int custId){
+        Optional<List<order>> orders = orderDetailsRepo.findByCustId(custId);
+        if(orders.isPresent()){
+            for(order t1:orders.get()){
+                ResponseEntity<String> out = deleteOrderData(t1.getOrderId());
+            }
+        }
+        return new ResponseEntity<>("Order Deleted",HttpStatus.OK);
     }
 
     @PutMapping("/put_order_data/{id}")
@@ -405,6 +417,21 @@ public class WebController {
         for(Customer t1:customers){
             List<order> t2 = getOrdersCustId(t1.getCustomerId()).getBody();
             result.put(t1.getFirstName(),t2.size());
+        }
+        return result;
+    }
+
+    @GetMapping("/get_orders_product_rel")
+    public Map<String,Integer> getOrderProductRel(){
+        List<order> orders = orderDetailsRepo.findAll();
+        Map<String,Integer> result = new HashMap<>();
+        for(order t1:orders){
+            if(result.containsKey(t1.getProductName())){
+                result.put(t1.getProductName(),result.get(t1.getProductName())+1);
+            }
+            else{
+                result.put(t1.getProductName(),1);
+            }
         }
         return result;
     }
