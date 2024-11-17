@@ -397,6 +397,17 @@ public class WebController {
         }
         return sum;
     }
+
+    @GetMapping("/get_customer_order_rel")
+    public Map<String,Integer> getCustomerOrderRel(){
+        List<Customer> customers = userDetailsRepo.findAll();
+        Map<String,Integer> result = new HashMap<>();
+        for(Customer t1:customers){
+            List<order> t2 = getOrdersCustId(t1.getCustomerId()).getBody();
+            result.put(t1.getFirstName(),t2.size());
+        }
+        return result;
+    }
 }
 
 
