@@ -97,6 +97,12 @@ public class WebController {
         if (data == null) {
             return new ResponseEntity<>("Invalid order data", HttpStatus.BAD_REQUEST);
         }
+        int custId = data.getCustId();
+        Optional<Customer> existingCustomer = userDetailsRepo.findById(custId);
+        if(existingCustomer.isPresent()){
+            existingCustomer.get().setCustomerVisits(existingCustomer.get().getCustomerVisits()+1);
+            userDetailsRepo.save(existingCustomer.get());
+        }
         orderDetailsRepo.save(data);
         return new ResponseEntity<>("Order Data stored", HttpStatus.CREATED);
     }
@@ -322,10 +328,16 @@ public class WebController {
         }
     }
 
-    @GetMapping("get_segments")
+    @GetMapping("/get_segments")
     public List<CustomerSegments> getSegments(){
         List<CustomerSegments> customerSegments = customerSegmentsRepo.findAll();
         return customerSegments;
+    }
+
+    @GetMapping("/get_communication_logs")
+    public List<CommunicationLogs> getCommunicationLogs(){
+        List<CommunicationLogs> communicationLogs = communicationsLogRepo.findAll();
+        return communicationLogs;
     }
 
     @PostMapping("/send_personalized_message")
@@ -362,6 +374,28 @@ public class WebController {
 
         messageSent.add(String.format("Messages sent to %s: %d successful, %d failed", segmentName, successCount, failureCount));
         return messageSent;
+    }
+
+    @GetMapping("/get_customer_count")
+    public int getCustomerCount(){
+        List<Customer> customers =  userDetailsRepo.findAll();
+        return customers.size();
+    }
+
+    @GetMapping("/get_order_count")
+    public int getOrderCount(){
+        List<order> orders =  orderDetailsRepo.findAll();
+        return orders.size();
+    }
+
+    @GetMapping("/get_total_revenue")
+    public int getTotalRevenue(){
+        List<order> orders =  orderDetailsRepo.findAll();
+        int sum = 0;
+        for(order t1:orders){
+            sum+=Integer.parseInt(t1.getOrderPrice());
+        }
+        return sum;
     }
 }
 
